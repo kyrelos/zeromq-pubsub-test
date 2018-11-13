@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  zmq_publisher:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/usr/src/app
+    ports:
+    - 5400:3000
+    command: ["python", "publisher.py", "--port=3000"]
+    environment:
+    - ZMQ_BIND_ADDRESS=tcp://*:3000
+
+
+  zmq_subscriber:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+    - ./:/usr/src/app
+    links:
+    - zmq_publisher:zmq_publisher
+    command: ["python", "subscriber.py", "--port=3101"]
+    environment:
+    - ZMQ_PUB_ADDR=tcp://zmq_publisher:3000
